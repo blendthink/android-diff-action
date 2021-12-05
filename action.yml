@@ -1,0 +1,34 @@
+name: 'Android Diff'
+description: 'A GitHub Action that outputs Android diff.'
+author: 'blendthink'
+branding:
+  icon: info
+  color: gray-dark
+
+inputs:
+  base-apk-path:
+    description: 'Path to base apk. This is the app before changes'
+    required: true
+    default: 'base.apk'
+  target-apk-path:
+    description: 'Path to target apk. This is the app after changes'
+    required: true
+    default: 'target.apk'
+
+outputs:
+  diff:
+    value: ${{ steps.diff-generator.outputs.diff }}
+    description: 'Android diff.'
+  size-detail:
+    value: ${{ steps.diff-generator.outputs.size-detail }}
+    description: 'Android size detail.'
+
+runs:
+  using: composite
+  steps:
+    - name: setup cmdline tools
+      shell: bash
+      run: echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
+    - id: diff-generator
+      shell: bash
+      run: kotlin ${{ github.action_path }}/diff.main.kts ${{ inputs.base-apk-path }} ${{ inputs.target-apk-path }}
